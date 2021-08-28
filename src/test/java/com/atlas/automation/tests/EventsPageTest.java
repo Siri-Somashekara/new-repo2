@@ -2,10 +2,15 @@ package com.atlas.automation.tests;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
+
+import static org.testng.Assert.assertTrue;
+
 import java.awt.AWTException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -40,25 +45,41 @@ import com.atlas.automation.pages.LoginPage;
         homepage = loginpage.loginToApp(prop.getProperty("emailID"), prop.getProperty("password"));
         
     }
-    
-    @Test(priority=1)
+
+   @Test(priority=1)
 	public void verifyEventFilterOptionsTest() throws InterruptedException {
     	
     	homepage.eventsBtnClick();
         actions.waitForElementPresent(eventpage.show_Type);
  	    Assert.assertTrue(eventpage.show_Type.isDisplayed());
  	    Assert.assertTrue(eventpage.venue.isDisplayed());
- 	    Assert.assertTrue(eventpage.confirmClearFilter.isDisplayed());
+ 	    Assert.assertTrue(eventpage.searchField.isDisplayed());
+ 	   Assert.assertTrue(eventpage.year.isDisplayed());
 
 	}
-    
+   
+   
+   @Test(priority=2)
+   public void EventListingPageTest() throws InterruptedException {
+       
+       Assert.assertEquals(eventpage.titleHeader.getText(), "Title");
+       Assert.assertEquals(eventpage.eventNoHeader.getText(), "Event No");
+       Assert.assertEquals(eventpage.showtypeHeader.getText(), "Show Type");
+       Assert.assertEquals(eventpage.dateHeader.getText(), "Date");
+       Assert.assertEquals(eventpage.venueHeader.getText(), "Venue");
+       Assert.assertEquals(eventpage.publishtoteamHeader.getText(), "Published To Team");
+       Assert.assertEquals(eventpage.publishtoworldHeader.getText(), "Published To World");
+       
+       
+   }
+   
+   
     @Test(priority=2)
     public void filterByShowType() throws InterruptedException {
     	eventpage.pastEvents();
  	    Thread.sleep(3000);
     	eventpage.showtypeFilter();
  	    for (int i = 0; i < eventpage.filterShowType.size(); i++) {
- 	    	
  	    	String EventName = eventpage.filterShowType.get(i).getText();
  	        Assert.assertTrue(EventName.contains("ONE Series")); 
  	    	
@@ -71,7 +92,7 @@ import com.atlas.automation.pages.LoginPage;
     @Test(priority=3)
 	public void filterByEventVenue() throws InterruptedException {
     	 eventpage.venueFilter();
-    		
+    	 Thread.sleep(3000);	
 		 for (int i = 0; i < eventpage.filterVenue.size(); i++) {
 			 String EventName = eventpage.filterVenue.get(i).getText();
 		     Assert.assertTrue(EventName.contains("Bellesalle Shibuya Garden, Tokyo"));
@@ -81,14 +102,40 @@ import com.atlas.automation.pages.LoginPage;
 	     eventpage.clearFilter();
 		
     }
-   
+    
     @Test(priority=4)
+    public void Yearfilter() throws InterruptedException {
+    	 
+    	   
+    	   actions.waitForElementToLoad();
+       	   eventpage.yearFilter();
+       	Thread.sleep(3000);	
+		 for (int i = 0; i < eventpage.filterYear.size(); i++) {
+			 String EventName = eventpage.filterYear.get(i).getText();
+		     Assert.assertTrue(EventName.contains("2019"));
+   
+        }
+       	eventpage.clearFilter();
+       	Assert.assertEquals(0, driver.findElements(By.xpath("//span[contains(text(),'Clear Filter')]")).size());
+    }
+    @Test(priority=4)
+    public void Monthfilter() throws InterruptedException {
+    	 
+    	   
+    	   actions.waitForElementToLoad();
+       	   eventpage.yearFilter();
+       	   Assert.assertEquals(eventpage.month.getText(),"Month (optional)");
+       	eventpage.clearFilter();
+       	Assert.assertEquals(0, driver.findElements(By.xpath("//span[contains(text(),'Clear Filter')]")).size());
+    }
+
+    
+   
+    @Test(priority=5)
 	public void filterByEventByShowtypeandvenue() throws InterruptedException {
-    	
-	   
+     
    	    Thread.sleep(3000);
         eventpage.showtypeFilter();
-        Thread.sleep(3000);
         eventpage.venueFilter();
 		 
 			 for (int i=0,j = 0; i< eventpage.filterShowType.size()&& j<eventpage.filterVenue.size(); i++,j++) {
@@ -103,35 +150,59 @@ import com.atlas.automation.pages.LoginPage;
 		eventpage.clearFilter();
 		 
 		}
-    
    
-    @Test(priority=5)
+    @Test(priority=6)
 	public void eventSearchByNameTest() throws InterruptedException {
-    	
+    	try {
+    		
     	eventpage.pastEvents();
        	actions.waitForElementToLoad();
-        eventpage.enterSearchQuery();
-        actions.waitForElementToLoad();
-    			for (int i = 0; i < eventpage.searchResultsByName.size(); i++) {
+        eventpage.enterStringInEventSearchField("Fist");
+        Thread.sleep(5000);
+    			for (int i = 0; i< eventpage.searchResultsByName.size(); i++) {
     				String athleteName = eventpage.searchResultsByName.get(i).getText();
-    				Assert.assertTrue(athleteName.contains("Automation"));	
+    				Assert.assertTrue(athleteName.contains("Fist"));	
+    			}	
+    	}
+    			catch (AssertionError e) {
+    				e.printStackTrace();
+    			}
+        Assert.assertTrue(eventpage.clearFilter.isDisplayed());
+		eventpage.clearFilter(); 
+   }
+   
+	
+   
+    @Test(priority=7)
+	public void eventSearchByNamewithfilterTest() throws InterruptedException {
+       	actions.waitForElementToLoad();
+        eventpage.enterSearchQuery();
+        Thread.sleep(2000);
+       	eventpage.showtypeFilter();
+        Thread.sleep(3000);
+    			for (int i = 0,j=0; i < eventpage.searchResultsByName.size()&&  j < eventpage.filterShowType.size(); i++) {
+    				String EventName = eventpage.searchResultsByName.get(i).getText();
+    				String Eventtype = eventpage.filterShowType.get(i).getText();
+    				Assert.assertTrue(EventName.contains("Fist"));	
+    				Assert.assertTrue(Eventtype.contains("ONE Series"));
     			}	
         Assert.assertTrue(eventpage.clearFilter.isDisplayed());
 		 
    }
    
-    @Test(priority=6)
+    @Test(priority=8)
    public void clearFilter() throws InterruptedException{
-    
+    	
+    	eventpage.yearFilter();
+        eventpage.venueFilter();
+   
 	    eventpage.clearFilter();
-	    Assert.assertTrue(eventpage.confirmClearFilter.isDisplayed());
+	    Assert.assertEquals(0, driver.findElements(By.xpath("//span[contains(text(),'Clear Filter')]")).size());
 	   
   }
- 
 
-  
-  
-    @Test(priority=7)
+  /*
+    @Test(priority=8)
     public void pastEventNavigation() throws InterruptedException {
     	
     	actions.waitForElementToBeClickable(eventpage.nextpage);
@@ -142,7 +213,7 @@ import com.atlas.automation.pages.LoginPage;
 	  
  }
     
-  @Test (priority=8)  
+  @Test (priority=9)  
    public void allEventNavigation() throws InterruptedException {
 	  
 	  eventpage.allEvents();
@@ -175,7 +246,7 @@ import com.atlas.automation.pages.LoginPage;
         Assert.assertTrue(sortedList.equals(obtainedList));
   
    }
-   
+  
     @Test(priority=10)  
 
    public void sortbyDescendingOrder() throws InterruptedException{
@@ -240,7 +311,7 @@ import com.atlas.automation.pages.LoginPage;
     public void searchTypeFilter() throws InterruptedException {
     	Thread.sleep(3000);
 	    eventpage.show_Type.click();
-	    Actions performAct = new Actions(driver); 
+	    Actions performAct = new Actions(driver1); 
 	    performAct.sendKeys(eventpage.show_Type,"one").build().perform(); 
 	    Assert.assertTrue(eventpage.oneSeries.isDisplayed());
 	    Assert.assertTrue(eventpage.oneHeroSeries.isDisplayed());
@@ -297,24 +368,60 @@ import com.atlas.automation.pages.LoginPage;
         eventpage.searchQuery();
         Assert.assertTrue(eventpage.noEventFound.isDisplayed());
         
-    }
+    } 
+    
   
-    @Test(priority=19)
+  @Test(priority=19)
     public void createNewEventTest() throws InterruptedException {
-    	
-   	    eventpage.createnewEvent();
-        eventpage.showType();
-        eventpage.eventSave();
+	  homepage.eventsBtnClick();
+	    eventpage.createnewEvent();
+	    eventpage.showType();
+	    eventpage.eventSave();
         actions.waitForElementPresent(eventpage.confirmEventType);
         Assert.assertTrue(eventpage.confirmEventType.isDisplayed());
-        eventpage.publishToTeam();
+        driver.navigate().back();
          
     }
+ 
+  @Test(priority=20)
+ 	public void searchcreatedEvent() throws InterruptedException {
+	 
+ 		    eventpage.searchQuery();
+ 		    Thread.sleep(5000);
+ 		    Assert.assertEquals(eventpage.event.getText(),eventpage.eventName);
+          
+             
+ 		} 
 
-    @Test(priority=20)
+   @Test(priority=21)
+   	public void checkcreatedEventinallLocales() throws InterruptedException {
+   		    
+   		    eventpage.hindilocale();
+   		    homepage.eventsBtnClick();
+   		 eventpage.searchQuery();
+   		    Thread.sleep(5000);
+   		    Assert.assertEquals(eventpage.event.getText(),eventpage.eventName);
+   		    eventpage.bahasalocale();
+		    homepage.eventsBtnClick();
+		    eventpage.searchQuery();
+		    Thread.sleep(5000);
+		    Assert.assertEquals(eventpage.event.getText(),eventpage.eventName);
+		    eventpage.khmerlocale();
+   		    homepage.eventsBtnClick();
+   		 eventpage.searchQuery();
+   		    Thread.sleep(5000);
+   		   Assert.assertEquals(eventpage.event.getText(),eventpage.eventName);
+               
+   		} 
+   
+    @Test(priority=22)
     public void detailTabTest() throws InterruptedException {
-    	
-    	 Thread.sleep(3000);
+    	 eventpage.englishlocale();
+		    homepage.eventsBtnClick();
+		    eventpage.searchQuery();
+   		    Thread.sleep(5000);
+         eventpage.event.click();
+    	 
     	 Assert.assertTrue(eventpage.generalTab.isDisplayed());
  	   	 Assert.assertTrue(eventpage.boutcardTab.isDisplayed());
  	   	 Assert.assertTrue(eventpage.creativestab.isDisplayed());
@@ -326,11 +433,10 @@ import com.atlas.automation.pages.LoginPage;
  	   	 Assert.assertTrue(eventpage.nothingtoshow.isDisplayed());  
     	   
    }
-    
-    @Test(priority=21)
+    /*
+    @Test(priority=22)
     public void boutpageTabTest() throws InterruptedException {
-    	
-    	Thread.sleep(5000);	 
+       
         eventpage.boutcard();
         actions.waitForElementPresent(eventpage.download);
        	Assert.assertTrue(eventpage.download.isDisplayed());
@@ -343,7 +449,7 @@ import com.atlas.automation.pages.LoginPage;
     	Assert.assertTrue(eventpage.leadcardEditBtn.isDisplayed()); 
      
    }
-  
+  /*
     @Test (priority=22)
     public void addBoutPopupTest() throws InterruptedException {
     	
@@ -353,6 +459,7 @@ import com.atlas.automation.pages.LoginPage;
 		Assert.assertTrue(eventpage.weightclass.isDisplayed());
 		Assert.assertTrue(eventpage.style.isDisplayed());
 		Assert.assertTrue(eventpage.selectchampionshipType.isDisplayed());
+		Assert.assertTrue(eventpage.tags.isDisplayed());
 		Assert.assertTrue(eventpage.SaveAndProceed.isDisplayed());
 		Assert.assertTrue(eventpage.cancel.isDisplayed());
 		eventpage.boutAdditionCancel();
@@ -471,74 +578,141 @@ import com.atlas.automation.pages.LoginPage;
     
     @Test(priority=31)
     public void addBoutcards() throws InterruptedException {
-    	
+    	homepage.eventsBtnClick();
+    	eventpage.event1.click();
+    	eventpage.boutcard();
         eventpage.addMainCardBout();
 		eventpage.boutcard1();
+		actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+		Assert.assertEquals(eventpage.Red1.getText(),"AJ Lias Mansor");
+		Assert.assertEquals(eventpage.Blue1.getText(),"Abro Fernandes");
+		
+    }
+    
+    @Test(priority=32)
+    public void addMainBoutcards() throws InterruptedException {
 		eventpage.addMainCardBout();
 		eventpage.boutcard2();
+		actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+		Assert.assertEquals(eventpage.Red2.getText(),"Stamp Fairtex");
+		//Assert.assertEquals(eventpage.Blue2.getText(),"Ritu Phogat2");
+		Assert.assertEquals(eventpage.Noofmaincards.getText(),"MAIN CARD (2 BOUTS)");
+		Assert.assertEquals(eventpage.Noofcards.getText(),"Total Bouts: 2");
+		
+    }
+    @Test(priority=33)
+    public void addLeadBoutcards() throws InterruptedException {
+       homepage.eventsBtnClick();
+    	eventpage.event1.click();
+    	eventpage.boutcard();
 		eventpage.addLeadCardBout();
 		eventpage.boutcard3();
+		actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+		Assert.assertEquals(eventpage.Red3.getText(),"Adi Nugroho");
+		Assert.assertEquals(eventpage.Blue3.getText(),"Adi Paryanto");
 		eventpage.addLeadCardBout();
 		eventpage.boutcard4();
-		Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+		actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+		Assert.assertEquals(eventpage.Red4.getText(),"Adib Sulaiman");
+		Assert.assertEquals(eventpage.Blue4.getText(),"Adrian Mattheis");
+		Assert.assertEquals(eventpage.Noofleadcards.getText(),"LEAD CARD (2 BOUTS)");
+		Assert.assertEquals(eventpage.Noofcards.getText(),"Total Bouts: 4");
+		
+		actions.verticalScrollToTop();
+		//eventpage.publishToTeam();
+		//Assert.assertTrue(eventpage.publishtoteam.isDisplayed());
+		
+		
+		
+    }
+    @Test(priority=35)
+    public void AthletedetailsTest() throws InterruptedException {
+    	
+        eventpage.expand.click();
+        Assert.assertEquals(eventpage.nickname.getText(), "NICKNAME");
+        Assert.assertEquals(eventpage.gym.getText(), "GYM");
+        Assert.assertEquals(eventpage.Weightclass.getText(), "WEIGHTCLASS");
+        Assert.assertEquals(eventpage.weight.getText(), "WEIGHT");
+        Assert.assertEquals(eventpage.height.getText(), "HEIGHT");
+        Assert.assertEquals(eventpage.age.getText(), "AGE");
+        Assert.assertEquals(eventpage.dob.getText(), "DOB");
+        Assert.assertEquals(eventpage.country.getText(), "COUNTRY");
+        Assert.assertEquals(eventpage.recordtype.getText(), "RECORD TYPE");
+        Assert.assertEquals(eventpage.record.getText(), "RECORD (W‑L‑D)");
+        
     }
 
-    @Test(priority=32)   
+    @Test(priority=34)   
     public void markAllasConfirmed() throws InterruptedException {
-    	
-    	Thread.sleep(3000);
+    
+    	eventpage.maincardBoutEdit();
+        eventpage.enable.click();
+        eventpage.saveBout();
         actions.waitForElementToBeClickable(eventpage.confirmationMarkAllasconfirmed);
     	Assert.assertTrue(eventpage.confirmMarkAllasconfirmed.isDisplayed());
-        Thread.sleep(3000);
-        //Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+    	Assert.assertEquals(eventpage.Noofmaincards.getText(),"MAIN CARD (2 BOUTS)");
+       // Assert.assertEquals(eventpage.Noofcards.getText(),"Total Bouts: 4");
+        Assert.assertEquals(0, driver.findElements(By.xpath("//span[contains(text(), 'Mark all as confirmed')]")).size());
+        
         
     } 
-     
+    
+   
+    
+  /* 
     @Test(priority=33)
     public void nonChampionshipBoutToChampionshipBout() throws InterruptedException {
     	
     	eventpage.nonchampionshiptoChampionship();
-    	Assert.assertTrue(eventpage.confirmLightweightWorldChampionship.isDisplayed());
     	eventpage.saveBout();
-    	Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-    	
+    	Thread.sleep(7000);
+    	Assert.assertEquals(eventpage.confirmLightweightWorldChampionship.getText(),"(FLYWEIGHT)"+"\n"+"LAGA CADANGAN FLYWEIGHT WORLD GRAND PRIX"+"\n"+"UNCONFIRMED");
+      	
     }
     
     @Test(priority=34)
     public void championshipBoutToNonChampionshipBout() throws InterruptedException {
-    	
-	    Thread.sleep(3000);
         eventpage.championshiptoNonchampionship();
-    	Assert.assertTrue(eventpage.selectchampionshipType.isDisplayed());
+    	//Assert.assertTrue(eventpage.selectchampionshipType.isDisplayed());
     	eventpage.saveBout();
-    	Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+    	Thread.sleep(5000);
+    	Assert.assertEquals(eventpage.confirmLightweightWorldChampionship.getText(),"FLYWEIGHT"+"\n"+"BOXING"+"\n"+"UNCONFIRMED");
     	
     }
-   
-    @Test(priority=35)
+   /*
+    @Test(priority=34)
     public void deleteBoutcard() throws InterruptedException {
     	
-	    Thread.sleep(3000);
+	   
         eventpage.boutDelete();
+        
         Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
         Assert.assertTrue(eventpage.confirmBoutDelete.isDisplayed());
         Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
         
    }
  
-    @Test(priority=36)
+    @Test(priority=35)
     public void athletebothReplace() throws InterruptedException {
-    	
-	    Thread.sleep(3000);
  	    eventpage.maincardBoutEdit();
-        eventpage.athlete2();
+        eventpage.athlete1();
         eventpage.athlete3();
         eventpage.saveBout();
-        Thread.sleep(5000);
-        Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-        actions.waitForElementPresent(eventpage.confirmreplacedAthleteRedCorner);
-        Assert.assertTrue(eventpage.confirmreplacedAthleteRedCorner.isDisplayed());
-   	    Assert.assertTrue(eventpage.confirmreplacedAthleteBlueCorner.isDisplayed());
+        Thread.sleep(7000);
+        Assert.assertEquals(eventpage.Red1.getText(),"Neha Kashyap");
+		Assert.assertEquals(eventpage.Blue1.getText(),"Asha R");
+		 Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+        
+    }
+    
+    @Test(priority=36)
+    public void athletesingleReplace() throws InterruptedException {
+        Thread.sleep(3000);
+ 	    eventpage.maincardBoutEdit();
+        eventpage.athlete2();
+        eventpage.saveBout();
+        Thread.sleep(7000);
+        Assert.assertEquals(eventpage.Red1.getText(),"Stamp Fairtex");
         
         
     }
@@ -552,32 +726,29 @@ import com.atlas.automation.pages.LoginPage;
         Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
         actions.waitForElementPresent(eventpage.unconfirmedtext);
         Assert.assertTrue(eventpage.unconfirmedtext.isDisplayed());
-        Assert.assertTrue(eventpage.totalUnconfimedBouts.isDisplayed());
         
     }
     
     @Test(priority=38)
     public void unconfirmToconfirm() throws InterruptedException {
     	
-    	Thread.sleep(3000);
     	eventpage.maincardBoutEdit();
         eventpage.enable.click();
         eventpage.saveBout();
-        Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-        actions.waitForElementPresent(eventpage.totalconfimedBouts);
-        Assert.assertTrue(eventpage.totalconfimedBouts.isDisplayed());
-        
+        actions.verticalScrollToTop();
+       actions.waitForElementPresent(eventpage.Noofmaincards1);
+        Assert.assertTrue(eventpage.Noofmaincards1.isDisplayed());
     }
-  
+ 
 
     @Test(priority=39)
     public void superseries() throws InterruptedException{
-	    Thread.sleep(3000);
+    	 Thread.sleep(3000);
         eventpage.maincardBoutEdit();
         eventpage.superseries.click();
         eventpage.style();
         eventpage.saveBout();
-        Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+        actions.waitForElementPresent(eventpage.confirmSuperseries);
         Assert.assertTrue(eventpage.confirmSuperseries.isDisplayed());
         
     }
@@ -591,9 +762,9 @@ import com.atlas.automation.pages.LoginPage;
          eventpage.style();
          eventpage.catchweightWeightclass();
          eventpage.catchWeightvalue();
-         Thread.sleep(3000);
          eventpage.saveBout();
          Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+         actions.waitForElementPresent(eventpage.confirmCatchweightvalue);
    	     Assert.assertTrue(eventpage.confirmCatchweightvalue.isDisplayed());
 	  
   }
@@ -659,18 +830,24 @@ import com.atlas.automation.pages.LoginPage;
         eventpage.dropImage();
         eventpage.upload(System.getProperty("user.dir") + "/creatives/event creatives/1360x640.png");
         actions.waitForElementToBeClickable(eventpage.saveImage);
+       
         Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
         Assert.assertTrue(eventpage.deleteBannerListing.isDisplayed());
+        Thread.sleep(7000);
         actions.waitForElementToBeClickable(eventpage.bannerUpcoming);
         eventpage.dropImage();
         eventpage.upload(System.getProperty("user.dir") + "/creatives/event creatives/1920x1080.jpg"); 
         actions.waitForElementToBeClickable(eventpage.saveImage);
+        
         Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
         Assert.assertTrue(eventpage.deleteBannerUpcoming.isDisplayed());
+        Thread.sleep(7000);
+        actions.scrollToDown();
         actions.waitForElementToBeClickable(eventpage.featuredImage);
         eventpage.dropImage();
         eventpage.upload(System.getProperty("user.dir") + "/creatives/event creatives/1800x1200_2.jpg");
         actions.waitForElementToBeClickable(eventpage.saveImage);
+       
         Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
         Assert.assertTrue(eventpage.deleteFeaturedImage.isDisplayed());
       
@@ -678,17 +855,16 @@ import com.atlas.automation.pages.LoginPage;
   
     @Test(priority=45)
     public void deletecreative() throws InterruptedException {
-    	
-    	 eventpage.deleteBannerListing.click();
+    	 actions.waitForElementToBeClickable(eventpage.deleteBannerListing);
      	 Thread.sleep(3000);
      	 Assert.assertTrue(eventpage.bannerListingCreative.isDisplayed());
      	 Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-     	 eventpage.deleteBannerUpcoming.click();
+     	actions.waitForElementToBeClickable(eventpage.deleteBannerUpcoming);
      	 Thread.sleep(3000);
      	 Assert.assertTrue(eventpage.bannerUpcomingCreative.isDisplayed());
      	 Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
      	 actions.scrollToDown();
-     	 eventpage.deleteFeaturedImage.click();
+     	actions.waitForElementToBeClickable(eventpage.deleteFeaturedImage);
      	 Thread.sleep(3000);
      	 Assert.assertTrue(eventpage.featuredImageCreative.isDisplayed());
      	 Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
@@ -704,11 +880,10 @@ import com.atlas.automation.pages.LoginPage;
     	eventpage.eventVenue();
     	eventpage.saveEventdetails();
     	Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-    	actions.waitForElementToLoad();
-    	driver.navigate().refresh();
+    	Thread.sleep(5000);
     	actions.waitForElementToBeClickable(eventpage.creativestab);    
     	eventpage.creative();
-    	Thread.sleep(5000);
+    	
     	Assert.assertTrue(eventpage.venuecreativebanner.isDisplayed());
         Assert.assertTrue(eventpage.venuecreativelisting.isDisplayed());
         
@@ -722,40 +897,39 @@ import com.atlas.automation.pages.LoginPage;
     	eventpage.editEvent();
     	eventpage.eventVenueEdit();
     	eventpage.saveEventdetails();
-    	Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-    	actions.waitForElementToLoad();
-    	driver.navigate().refresh();
+    	//Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+    	Thread.sleep(5000);
     	actions.waitForElementToBeClickable(eventpage.creativestab);    
     	eventpage.creative();
-    	Thread.sleep(5000);
     	Assert.assertTrue(eventpage.venuecreativebannerwithvenue.isDisplayed());
         Assert.assertTrue(eventpage.venuecreativelistingwithvenue.isDisplayed());
         
     }
+   
+    
+    
 	
     @Test(priority=48)
     public void eventDetailsEdit() throws InterruptedException {
     	
     	eventpage.detailpage(); 
     	eventpage.editEvent();
-    	eventpage.selecetEventEnclosure();
     	eventpage.deleteVenue.click();
     	eventpage.eventVenue();
+    	actions.scrollToDown();
+    	eventpage.selecetEventEnclosureRing();
     	eventpage.saveEventdetails();
-    	Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-    	actions.waitForElementPresent(eventpage.enclosureConfirmation);
-        Assert.assertTrue(eventpage.enclosureConfirmation.isDisplayed());
+        Assert.assertTrue(eventpage.ring.isDisplayed());
         
      }
    
     @Test(priority=49)
-    public void description() throws InterruptedException {
-    	 
+    public void description() throws InterruptedException { 
+    	
     	eventpage.editDescriptionClick();
     	eventpage.enterDescription();
     	eventpage.saveDescription();
     	Thread.sleep(3000);
-    	Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
       	Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
       	actions.waitForElementPresent(eventpage.descriptionConfirmation);
         Assert.assertTrue(eventpage.descriptionConfirmation.isDisplayed());
@@ -764,7 +938,10 @@ import com.atlas.automation.pages.LoginPage;
     
     @Test(priority=50)
     public void appsettingTabTest() throws InterruptedException {
-    	Thread.sleep(3000);
+    	homepage.eventsBtnClick();
+    	eventpage.event1.click();
+    	//actions.verticalScrollToTop();
+    	Thread.sleep(5000);
         eventpage.appsetting(); 
         actions.waitForElementToLoad();
        	Assert.assertTrue(eventpage.editappsettingEvent.isDisplayed());
@@ -772,37 +949,465 @@ import com.atlas.automation.pages.LoginPage;
     	Assert.assertTrue(eventpage.hideboutcardsText.isDisplayed());
     	Assert.assertTrue(eventpage.publishToWorld.isDisplayed());
     	Assert.assertTrue(eventpage.lastpublishedtoworldText.isDisplayed());
-       	
+    //	Thread.sleep(2000);
+    	//eventpage.deleteBtn.click();
+        //eventpage.select.click();
+        //eventpage.deletepermanently.click();
+       	driver.get("https://atlas.dev.tech.onefc.com/events");
    }
-    
-    @Test(priority=51)
-    public void appsettingDisplayBout() throws InterruptedException {
+    @Test(priority=71)
+   	public void PastEventTag() throws InterruptedException {
+    	Thread.sleep(5000);
+        eventpage.pastEvents();
+        //search for an event
+        eventpage.enterStringInEventSearchField("Fists of fury");
+        Thread.sleep(5000);
+        eventpage.event.click();
+        eventpage.boutcard();
+        //Validating the Tags
+        Assert.assertEquals(eventpage.tagcheck4.getText(), "");
+        Assert.assertEquals(eventpage.tagcheck4.getText(), "");
+        Assert.assertEquals(eventpage.tagcheck4.getText(), "");
+        Assert.assertEquals(eventpage.tagcheck4.getText(), "");
+   		}    
+   
+   /*	
+    @Test(priority=53)
+   	public void tagsdropdownTest() throws InterruptedException {
     	
-    	actions.verticalScrollToTop();
-  	    eventpage.appsetting();
-  	    actions.waitForElementToLoad();
-  	    eventpage.editAppsettings();
-  	    eventpage.displayBout();
-  	    eventpage.appsettingsave();
-  	    Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
-  	    Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+    	Thread.sleep(5000);
+    	eventpage.createnewEvent();
+        eventpage.showType();
+        eventpage.selecetEventEnclosurecage();
+        eventpage.eventSave();
+        Thread.sleep(3000);
+            eventpage.boutcard();
+            eventpage.addMainCardBout();
+   			eventpage.tags.click();
+   			//check for Available Tags
+   			Assert.assertTrue(eventpage.BR.isDisplayed());
+   			Assert.assertTrue(eventpage.Regular.isDisplayed());
+   			Assert.assertTrue(eventpage.TNT.isDisplayed());
+   			eventpage.boutAdditionCancel();
+               
+   		} 
+    @Test(priority=54)
+   	public void tagsearchDropdownTest() throws InterruptedException {
+           eventpage.addBout();
+			eventpage.tags.click();
+			Actions performAct = new Actions(driver); 
+		    performAct.sendKeys(eventpage.tags,"Regu").build().perform(); 
+		    //validate the search Tag
+   			Assert.assertTrue(eventpage.Regular.isDisplayed());
+   			eventpage.boutAdditionCancel();
+   		} 
     
-        }
+    @Test(priority=55)
+   	public void invalidsearchDropdownTest() throws InterruptedException {
     
-    @Test(priority=52)
-    public void appsettingHideEvent() throws InterruptedException {
+    	    eventpage.addBout();
+			eventpage.tags.click();
+			Actions performAct = new Actions(driver); 
+		    performAct.sendKeys(eventpage.tags,"one").build().perform(); 
+   			Assert.assertTrue(eventpage.Nomatchfound.isDisplayed());
+   			eventpage.boutAdditionCancel();
+   			eventpage.mainCardAdditionCancel.click();
+   		} 
+    
+    @Test(priority=56)
+   	public void logTest() throws InterruptedException {
+         eventpage.addMainCardBout();
+ 	     eventpage.boutcard1();
+	     eventpage.BR();
+	     eventpage.SaveAndProceed.click();
+	     Thread.sleep(3000);
+         eventpage.maincardBoutEdit();
+		 eventpage.Regular();
+		 eventpage.TNT();
+		 eventpage.SaveAndProceed.click();
+		 Thread.sleep(5000); 
+         eventpage.logs();
+         //Assert.assertEquals(eventpage.versionNo1.getText(),"Version 3");  
+         eventpage.boutcard();
+        eventpage.maincardBoutEdit();
+      eventpage.tagDelete.click();
+      eventpage.SaveAndProceed.click();
+      Thread.sleep(5000);
+      eventpage.logs();
+      //Assert.assertEquals(eventpage.versionNo1.getText(),"Version 4");  
+      
+               
+   		} 
+    @Test(priority=57)
+   	public void additionofTagforBoutcreatedwithoutTag() throws InterruptedException {
+    	   eventpage.boutcard();
+    	   eventpage.boutDelete();
+    	   Thread.sleep(3000);
+            eventpage.addMainCardBout();
+			eventpage.boutcard1();
+			eventpage.SaveAndProceed.click();
+			Thread.sleep(3000);
+			eventpage.maincardBoutEdit();
+			eventpage.Regular();
+			eventpage.SaveAndProceed.click();
+			Thread.sleep(7000);
+			//Validate the added Tag
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"REGULAR");
+             eventpage.boutDelete();  
+   		} 
+    
+    @Test(priority=58)
+   	public void boutcreationwithtag() throws InterruptedException {
+    	    Thread.sleep(3000);
+            eventpage.addMainCardBout();
+			eventpage.boutcard1();
+			eventpage.BR();
+			eventpage.SaveAndProceed.click();
+			//Validate the added Tag
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"BR");
+               
+   		} 
+   
+    @Test(priority=59)
+   	public void addTagcancel() throws InterruptedException {
     	
-    	eventpage.editAppsettings();
- 	    eventpage.hideEvent();
- 	    eventpage.appsettingsave();
- 	    Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed()); 
- 	    Assert.assertTrue(eventpage.confirmationPopupTextForSave.isDisplayed());
+			eventpage.maincardBoutEdit();
+			eventpage.Regular();
+			eventpage.TNT();
+			eventpage.boutAdditionCancel();
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"BR");
+			eventpage.mainCardAdditionCancel.click();
+               
+   		} 
+    
+    @Test(priority=60)
+   	public void tagDeletionancel() throws InterruptedException {
+    	  
+           eventpage.maincardBoutEdit();
+			eventpage.tagDelete.click();
+			eventpage.boutAdditionCancel();
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"BR");
+			eventpage.mainCardAdditionCancel.click();
+   			
+               
+   		} 
+    
+    
+  @Test(priority=61)
+	public void tagAddition() throws InterruptedException {
+		    eventpage.maincardBoutEdit();
+		    eventpage.Regular();
+			eventpage.TNT();
+		    eventpage.SaveAndProceed.click();
+		    Thread.sleep(7000);
+		    //validate Tag Addition
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"BR"+"\n"+"REGULAR"+"\n"+"TNT");
+            
+		} 
+  
+  
+    @Test(priority=62)
+	public void tagDeletion() throws InterruptedException {
+		     
+            eventpage.maincardBoutEdit();
+            eventpage.tagDelete.click();
+            eventpage.SaveAndProceed.click();
+            Thread.sleep(7000);
+            Assert.assertEquals(eventpage.tagcheck1.getText(),"REGULAR"+"\n"+"TNT");
+            eventpage.maincardBoutEdit();
+            eventpage.tagDelete.click();
+            eventpage.tagDelete.click();
+            eventpage.SaveAndProceed.click();
+            Thread.sleep(7000);
+            //validate tag deletion
+            Assert.assertEquals(eventpage.tagcheck1.getText(),"");
+          
+    }
+      
+    @Test(priority=63)
+   	public void confirmedBoutTagTest() throws InterruptedException {
     	
+    	 eventpage.boutDelete();
+    	 Thread.sleep(3000);
+    	 eventpage.addMainCardBout();
+    	    eventpage.boutcard3();
+			eventpage.BR();
+			eventpage.SaveAndProceed.click();
+			Thread.sleep(2000);
+			eventpage.maincardBoutEdit();
+			eventpage.Regular();
+			eventpage.TNT();
+			eventpage.boutAdditionCancel();
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"BR");
+			eventpage.mainCardAdditionCancel.click();
+            eventpage.maincardBoutEdit();
+			eventpage.tagDelete.click();
+			eventpage.boutAdditionCancel();
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"BR");
+			eventpage.mainCardAdditionCancel.click();
+		    eventpage.maincardBoutEdit();
+		    eventpage.Regular();
+			eventpage.TNT();
+		    eventpage.SaveAndProceed.click();
+		    Thread.sleep(7000);
+			Assert.assertEquals(eventpage.tagcheck1.getText(),"BR"+"\n"+"REGULAR"+"\n"+"TNT"); 
+            eventpage.maincardBoutEdit();
+            eventpage.tagDelete.click();
+            eventpage.SaveAndProceed.click();
+            Thread.sleep(7000);
+            Assert.assertEquals(eventpage.tagcheck1.getText(),"REGULAR"+"\n"+"TNT");
+            eventpage.maincardBoutEdit();
+            eventpage.tagDelete.click();
+            eventpage.tagDelete.click();
+            eventpage.SaveAndProceed.click();
+            Thread.sleep(7000);
+            Assert.assertEquals(eventpage.tagcheck1.getText(),"");
+            eventpage.boutDelete();
+            
+    }
+    
+     @Test(priority=64)
+    public void eventcreationwithnoTagTest() throws InterruptedException { 
+    	 homepage.eventsBtnClick();
+    	 eventpage.event1.click();
+    	 eventpage.boutcard();
+   	   //Thread.sleep(3000);
+        eventpage.addMainCardBout();
+        eventpage.boutcard1();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck1.getText(),"");
+        eventpage.addMainCardBout();
+        eventpage.boutcard2();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck2.getText(),"");
+        eventpage.addMainCardBout();
+        eventpage.boutcard4();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck3.getText(),"");
+  
    }
+  
+  
+    @Test(priority=65)
+    public void publishtoteamEventcreationwithnoTagTest() throws InterruptedException {
+	 
+        actions.verticalScrollToTop();
+        eventpage.publishToTeam();
+        Thread.sleep(3000);
+        
+        
+         
+    } 
+     @Test(priority=65)
+    public void publishtoworldEventcreationwithnoTagTest() throws InterruptedException {
+    	 homepage.eventsBtnClick();
+    	 eventpage.event1.click();
+        eventpage.appsetting();
+        eventpage.publishToWorld();
+        Thread.sleep(7000);
+        eventpage.boutcard();
+       
+        eventpage.boutDelete();
+        Thread.sleep(2000);
+        //actions.waitForElementPresent(eventpage.maincardEditBtn);
+        eventpage.boutDelete();
+        //Thread.sleep(3000);
+        eventpage.boutDelete();
+         
+    } 
+    @Test(priority=66)
+        public void eventcreationwithsameTagTest() throws InterruptedException {
+    	Thread.sleep(3000);
+    	eventpage.addMainCardBout();
+        eventpage.boutcard1();
+        eventpage.BR();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck1.getText(), "BR");
+        eventpage.addMainCardBout();
+        eventpage.boutcard2();
+        eventpage.BR();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck2.getText(), "BR");
+        eventpage.addMainCardBout();
+        eventpage.boutcard3();
+        eventpage.BR();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck3.getText(), "BR");
+        eventpage.addMainCardBout();
+        eventpage.boutcard4();
+        eventpage.BR();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck4.getText(), "BR");
+        Thread.sleep(3000);
+        eventpage.boutDelete();
+        Thread.sleep(3000);
+        eventpage.boutDelete();
+        Thread.sleep(3000);
+        eventpage.boutDelete();
+        Thread.sleep(3000);
+        eventpage.boutDelete(); 
+        
+   }
+    @Test(priority=67)
+    public void eventcreationwithdifferentTagTest() throws InterruptedException {
+    	Thread.sleep(3000);
+    	eventpage.addMainCardBout();
+        eventpage.boutcard1();
+        eventpage.BR();
+        eventpage.TNT();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck1.getText(), "BR"+"\n"+"TNT");
+        eventpage.addMainCardBout();
+        eventpage.boutcard2();
+        eventpage.BR();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck2.getText(), "BR");
+        eventpage.addMainCardBout();
+        eventpage.boutcard3();
+        eventpage.TNT();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck3.getText(),"TNT");
+        eventpage.addMainCardBout();
+        eventpage.boutcard4();
+        eventpage.Regular();
+        actions.waitForElementToBeClickable(eventpage.SaveAndProceed);
+        Assert.assertEquals(eventpage.tagcheck4.getText(), "REGULAR");
+        //eventpage.publishToTeam();
+        
+        
+   }
+   
+      
+    @Test(priority=68)
+   	public void deletePermanentlyText() throws InterruptedException {
+    	homepage.eventsBtnClick();
+    	//Thread.sleep(5000);
+    	eventpage.createnewEvent();
+        eventpage.showType();
+        eventpage.selecetEventEnclosurecage();
+        eventpage.eventSave();
+       		    actions.waitForElementToLoad();
+       		    eventpage.appsetting();
+       		    eventpage.publishToTeam();
+       		    actions.waitForElementToLoad();
+       		    //eventpage.publishToWorld();
+       		 actions.waitForElementToLoad();
+       		 Thread.sleep(7000);
+       		    eventpage.hindilocale();
+       		    homepage.eventsBtnClick();
+       		   eventpage.searchQuery();
+       		//actions.waitForElementPresent(eventpage.eventName);
+       		    eventpage.event.click();
+       		    Assert.assertEquals(eventpage.eventbanner.getText(),eventpage.eventName);
+       		    eventpage.bahasalocale();
+    		    homepage.eventsBtnClick();
+    		    eventpage.searchQuery();
+       		    actions.waitForElementToLoad();
+       		    Assert.assertEquals(eventpage.event.getText(),eventpage.eventName);
+    		    eventpage.khmerlocale();
+       		    homepage.eventsBtnClick();
+       		 eventpage.searchQuery();
+    		    actions.waitForElementToLoad();
+    		    Assert.assertEquals(eventpage.event.getText(),eventpage.eventName);
+                  
+       		
+    	//actions.scrollToDown();
+    //validate Delete button and the Text
+   		 //Assert.assertTrue(eventpage.deleteBtn.isDisplayed());
+   		 //Assert.assertTrue(eventpage.deleteText.isDisplayed());
+               
+   		}  
     
-    @AfterClass
+    @Test(priority=69)
+   	public void deletePopTest() throws InterruptedException {
+    	
+               eventpage.deleteBtn.click();
+               actions.waitForElementPresent(eventpage.deletepopup);
+               Assert.assertTrue(eventpage.deletepopup.isDisplayed());
+               Assert.assertFalse(eventpage.deletepermanently.isEnabled());
+               Assert.assertTrue(eventpage.cancelDeleteEvent.isDisplayed());  
+               eventpage.cancelDeleteEvent.click();
+   		}  
+   
+    @Test(priority=70)
+   	public void deleteTextEnable() throws InterruptedException {
+   		    
+               eventpage.deleteBtn.click();
+               //eventpage.select.click();
+               Assert.assertFalse(eventpage.deletepermanently.isEnabled());
+               eventpage.cancelDeleteEvent.click();  
+               
+   		} 
+    
+    @Test(priority=71)
+   	public void deleteTextenable() throws InterruptedException {
+   		    
+               eventpage.deleteBtn.click();
+               eventpage.select.click();
+               Assert.assertTrue(eventpage.deletepermanently.isEnabled());
+               eventpage.cancelDeleteEvent.click();  
+               
+   		} 
+   
+    @Test(priority=72)
+   	public void deleteCancelTest() throws InterruptedException {
+   		    
+               eventpage.deleteBtn.click();
+               eventpage.select.click();
+               Assert.assertTrue(eventpage.deletepermanently.isEnabled());
+               eventpage.cancelDeleteEvent.click();  
+               
+   		} 
+    
+    @Test(priority=72)
+   	public void deleteTest() throws InterruptedException {
+   		    
+               eventpage.deleteBtn.click();
+               eventpage.select.click();
+               actions.waitForElementToBeClickable(eventpage.deletepermanently);
+               Thread.sleep(5000);
+               Assert.assertEquals(driver.getCurrentUrl(),"https://atlas.dev.tech.onefc.com/events#no-back");
+               //Assert.assertTrue(eventpage.confirmationPopupTextForEventDeletion.isDisplayed());
+    }   
+    
+    @Test(priority=72)
+   	public void deleteTestpopup() throws InterruptedException {
+    	 Assert.assertTrue(eventpage.confirmationPopupTextForEventDeletion.isDisplayed());
+
+        
+    }   
+    
+    @Test(priority=73)
+   	public void searchdeleteTest() throws InterruptedException {
+    
+   		  eventpage.searchQuery();
+   		 Assert.assertTrue(eventpage.noEventFound.isDisplayed());
+    }
+    
+    
+    @Test(priority=74)
+   	public void pasteventdeleteTest() throws InterruptedException {
+    homepage.eventsBtnClick();
+    
+   		  actions.waitForElementToLoad();
+   		  eventpage.pastEvents();
+   		eventpage.enterSearchQuery1();
+   		Thread.sleep(3000);
+   		  eventpage.event.click();
+   		Assert.assertTrue(eventpage.deleteTexts.isDisplayed());
+   		  eventpage.boutcard();
+   		Assert.assertTrue(eventpage.deleteTexts.isDisplayed());
+   		eventpage.creative();
+   		Assert.assertTrue(eventpage.deleteTexts.isDisplayed());
+   		  eventpage.logs();
+   		  Assert.assertTrue(eventpage.deleteTexts.isDisplayed());
+    }
+    
+   
+    /*
+   @AfterClass
 	public void tearDown() {
 		driver.quit();
-	}
+	}*/
 
 }

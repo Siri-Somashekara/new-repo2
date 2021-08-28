@@ -359,10 +359,11 @@ import com.atlas.automation.pages.LoginPage;
     
     @Test(priority=22)
    	public void removeChampion() throws InterruptedException {
-    	
-    	Thread.sleep(5000);
+    	Thread.sleep(3000);
        	athleteRankingPage.editBtn();
        	athleteRankingPage.deletechampion();
+
+    	Thread.sleep(3000);
     	Assert.assertTrue(athleteRankingPage.deletechamp.isDisplayed());
        	athleteRankingPage.saveNewCategoryBtn.click();
        	Assert.assertTrue(athleteRankingPage.changesSaved.isDisplayed());
@@ -393,14 +394,14 @@ import com.atlas.automation.pages.LoginPage;
 
     @Test(priority=23)
  	public void rankedit() throws InterruptedException {
-    	
+    	Thread.sleep(3000);
      	athleteRankingPage.editBtn();
      	athleteRankingPage.abro.click();
      	athleteRankingPage.searchAthlete();
      	athleteRankingPage.adibSulaiman.click();
         actions.verticalScrollToTop();
         athleteRankingPage.saveBtn();
-        Thread.sleep(7000);
+        Thread.sleep(8000);
         Assert.assertEquals(athleteRankingPage.rankNO1.getText(),"Adib Sulaiman");
         
     }

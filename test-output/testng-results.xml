@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" ignored="0" total="10" passed="10">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="122640" started-at="2021-08-27T14:31:07 IST" finished-at="2021-08-27T14:33:10 IST">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="122640" started-at="2021-08-27T14:31:07 IST" finished-at="2021-08-27T14:33:10 IST">
+      <class name="com.atlas.automation.tests.EventsPageTest">
+        <test-method status="PASS" signature="setup()[pri:0, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="setup" is-config="true" duration-ms="9150" started-at="2021-08-27T14:31:07 IST" finished-at="2021-08-27T14:31:16 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setup -->
+        <test-method status="PASS" signature="verifyEventFilterOptionsTest()[pri:1, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="verifyEventFilterOptionsTest" duration-ms="1591" started-at="2021-08-27T14:31:16 IST" finished-at="2021-08-27T14:31:18 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- verifyEventFilterOptionsTest -->
+        <test-method status="PASS" signature="EventListingPageTest()[pri:2, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="EventListingPageTest" duration-ms="158" started-at="2021-08-27T14:31:18 IST" finished-at="2021-08-27T14:31:18 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- EventListingPageTest -->
+        <test-method status="PASS" signature="filterByShowType()[pri:2, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="filterByShowType" duration-ms="3997" started-at="2021-08-27T14:31:18 IST" finished-at="2021-08-27T14:31:22 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- filterByShowType -->
+        <test-method status="PASS" signature="filterByEventVenue()[pri:3, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="filterByEventVenue" duration-ms="4086" started-at="2021-08-27T14:31:22 IST" finished-at="2021-08-27T14:31:26 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- filterByEventVenue -->
+        <test-method status="PASS" signature="Monthfilter()[pri:4, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="Monthfilter" duration-ms="20364" started-at="2021-08-27T14:31:26 IST" finished-at="2021-08-27T14:31:46 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- Monthfilter -->
+        <test-method status="PASS" signature="Yearfilter()[pri:4, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="Yearfilter" duration-ms="43471" started-at="2021-08-27T14:31:46 IST" finished-at="2021-08-27T14:32:30 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- Yearfilter -->
+        <test-method status="PASS" signature="filterByEventByShowtypeandvenue()[pri:5, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="filterByEventByShowtypeandvenue" duration-ms="7715" started-at="2021-08-27T14:32:30 IST" finished-at="2021-08-27T14:32:38 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- filterByEventByShowtypeandvenue -->
+        <test-method status="PASS" signature="eventSearchByNameTest()[pri:6, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="eventSearchByNameTest" duration-ms="5443" started-at="2021-08-27T14:32:38 IST" finished-at="2021-08-27T14:32:43 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- eventSearchByNameTest -->
+        <test-method status="PASS" signature="eventSearchByNamewithfilterTest()[pri:7, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="eventSearchByNamewithfilterTest" duration-ms="5493" started-at="2021-08-27T14:32:43 IST" finished-at="2021-08-27T14:32:49 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- eventSearchByNamewithfilterTest -->
+        <test-method status="PASS" signature="clearFilter()[pri:8, instance:com.atlas.automation.tests.EventsPageTest@17d0685f]" name="clearFilter" duration-ms="21139" started-at="2021-08-27T14:32:49 IST" finished-at="2021-08-27T14:33:10 IST">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- clearFilter -->
+      </class> <!-- com.atlas.automation.tests.EventsPageTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>

@@ -13,9 +13,7 @@
 
 	<test name="Atlas app test">
 		<classes>
-        	<class name="com.atlas.automation.tests.AthletesPageTest" /> 
-			<class name="com.atlas.automation.tests.AthletesPageLogsTabTest" /> 
-			<class name="com.atlas.automation.tests.HomePageTest" />
+        	
 			<class name="com.atlas.automation.tests.EventsPageTest" />
 			<class name="com.atlas.automation.tests.AthleteRankingsPageTest" />
 		</classes>
